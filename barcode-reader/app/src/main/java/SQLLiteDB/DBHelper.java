@@ -6,6 +6,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -60,8 +62,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 new String[] { String.valueOf(id) }, null, null, null, null);
         if (cursor != null)
             cursor.moveToFirst();
-        ItemBarcode item = new ItemBarcode(Integer.parseInt(cursor.getString(0)),
-                cursor.getString(1), cursor.getString(2));
+        ItemBarcode item = new ItemBarcode(cursor.getString(1), cursor.getString(2));
         // return item
         return item;
     }
