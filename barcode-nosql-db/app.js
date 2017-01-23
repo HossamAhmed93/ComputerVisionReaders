@@ -39,9 +39,13 @@ app.get('/api/barcode', function(req, res) {
 app.post('/api/barcode', function(req, res) {
   console.log('POST: /api/barcode');
   var barcode = req.body;
-  Barcode.insertOne(barcode, function(err, barcodes) {
-    if (err) throw err;
-    res.json(barcodes);
+  Barcode.insertOne(barcode, function(err, newBarcode) {
+    if (err) {
+      console.error(err.message)
+      res.sendStatus(400);
+    } else {
+      res.json(newBarcode);
+    }
   });
 });
 

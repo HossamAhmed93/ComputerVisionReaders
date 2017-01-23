@@ -1,4 +1,5 @@
 var mongoose = require('mongoose');
+var joi = require('joi');
 
 // Barcode Schema
 var barcodeSchema = mongoose.Schema({
@@ -6,9 +7,10 @@ var barcodeSchema = mongoose.Schema({
     type: String,
     required: true
   },
-  name: {
+  type: {
     type: String,
-    required: false
+    enum: ['BARCODE', 'QRCODE'],
+    required: true
   },
   created_date: {
     type: Date,
@@ -29,7 +31,24 @@ module.exports.findOne = function(code, callback) {
   Barcode.find({code: code}, callback);
 }
 
+// Validate barcode data
+function validateBarcode(barcode) {
+  var schema = joi.object().keys({
+    code: joi.string().required(),
+    type: joi.string().valid('BARCODE', 'QRCODE')
+  });
+
+  joi.validate(barcode, schema, function(err) {
+    if (err) return false;
+    else return true;
+  });
+}
+
 // Add Barcode
 module.exports.insertOne = function(barcode, callback) {
+  // Barcode.create({
+  //   code: barcode.code,
+  //   type: barcode.type
+  // }, callback);
   Barcode.create(barcode, callback);
 }
