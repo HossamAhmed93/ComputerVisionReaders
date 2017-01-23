@@ -45,10 +45,15 @@ function validateBarcode(barcode) {
 }
 
 // Add Barcode
-module.exports.insertOne = function(barcode, callback) {
+module.exports.insert = function(barcode, callback) {
   // Barcode.create({
   //   code: barcode.code,
   //   type: barcode.type
   // }, callback);
   Barcode.create(barcode, callback);
+}
+
+// Delete Barcode
+module.exports.delete = function(code, callback) {
+  Barcode.remove({code: code}, callback);
 }

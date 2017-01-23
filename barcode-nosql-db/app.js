@@ -39,7 +39,7 @@ app.get('/api/barcode', function(req, res) {
 app.post('/api/barcode', function(req, res) {
   console.log('POST: /api/barcode');
   var barcode = req.body;
-  Barcode.insertOne(barcode, function(err, newBarcode) {
+  Barcode.insert(barcode, function(err, newBarcode) {
     if (err) {
       console.error(err.message)
       res.sendStatus(400);
@@ -52,21 +52,24 @@ app.post('/api/barcode', function(req, res) {
 app.get('/api/barcode/:code', function(req, res) {
   console.log('GET: /api/barcode/:code');
   Barcode.findOne(req.params.code, function(err, barcode) {
-    if (err) throw err;
-    console.log(barcode);
-    res.json(barcode);
+    if (err || barcode.length == 0) {
+      console.error(err);
+      res.sendStatus(404);
+    } else {
+      console.log(barcode);
+      res.json(barcode);
+    }
   });
-  // res.send("!");
 });
 
-app.put('/api/barcode/:id', function(req, res) {
-  console.log('PUT: /api/barcode/:id');
-  res.send('Hello World');
-});
-
-app.delete('/api/barcode/:id', function(req, res) {
-  console.log('DELETE: /api/barcode/:id');
-  res.send('Hello World');
+app.delete('/api/barcode/:code', function(req, res) {
+  console.log('DELETE: /api/barcode/:code');
+  Barcode.delete(req.params.code, function(err, barcode) {
+    console.log(err);
+    // console.log(barcode);
+    res.sendStatus(200);
+  })
+  // res.send('Hello World');
 });
 
 app.listen(3000);
