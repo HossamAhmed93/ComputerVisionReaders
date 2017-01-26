@@ -23,7 +23,10 @@ import android.os.Bundle;
 import android.app.Activity;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
+import android.widget.ListView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.android.volley.Request;
@@ -34,6 +37,7 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.google.android.gms.common.api.CommonStatusCodes;
 import com.google.android.gms.vision.barcode.Barcode;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -47,6 +51,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 
 import SQLLiteDB.DBHelper;
 import SQLLiteDB.ItemBarcode;
@@ -66,22 +71,16 @@ public class MainActivity extends Activity implements View.OnClickListener {
     private static final int RC_BARCODE_CAPTURE = 9001;
     private static final String TAG = "BarcodeMain";
 
-    // Tag used to cancel the request
-    String tag_json_obj = "json_obj_req";
-    String url = "http://api.androidhive.info/volley/person_object.json";
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        statusMessage = (TextView)findViewById(R.id.status_message);
-        barcodeValue = (TextView)findViewById(R.id.barcode_value);
-
-        autoFocus = (CompoundButton) findViewById(R.id.auto_focus);
-        useFlash = (CompoundButton) findViewById(R.id.use_flash);
-
         findViewById(R.id.read_barcode).setOnClickListener(this);
+
+        // Get Data
+        new GetDataTask().execute("http://192.168.0.113:3000/api/barcode");
+
     }
 
     /**
@@ -137,9 +136,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
                     ItemBarcode item = new ItemBarcode(barcode.displayValue,barcode.displayValue);
                     db.addItem(item);
 
-                    // Get Data
-                    // new GetDataTask().execute("http://192.168.0.113:3000/api/barcode");
-
                     // Post Data
                     // new PostDataTask().execute("http://192.168.0.113:3000/api/barcode");
 
@@ -184,7 +180,30 @@ public class MainActivity extends Activity implements View.OnClickListener {
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
 
-            barcodeValue.setText(result);
+            ListView itemsList = (ListView) findViewById(R.id.items_list);
+            final ArrayList<String> list = new ArrayList<String>();
+            try {
+                JSONArray jsonArray = new JSONArray(result);
+                for(int i = 0; i < jsonArray.length(); i++) {
+                    JSONObject exploreObject = jsonArray.getJSONObject(i);
+                    StringBuilder item = new StringBuilder();
+                    if (exploreObject.has("name")) {
+                        item.append(exploreObject.getString("name")).append("\n");
+                    }
+                    if (exploreObject.has("code")) {
+                        item.append(exploreObject.getString("code")).append("\n");
+                    }
+                    if (exploreObject.has("type")) {
+                        item.append(exploreObject.getString("type"));
+                    }
+                    list.add(item.toString());
+                }
+
+                ArrayAdapter<String> adapter = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_list_item_1, list);
+                itemsList.setAdapter(adapter);
+            } catch (JSONException e) {
+                return;
+            }
 
             if (progressDialog != null) {
                 progressDialog.dismiss();

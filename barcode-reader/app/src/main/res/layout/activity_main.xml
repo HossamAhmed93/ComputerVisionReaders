@@ -6,12 +6,13 @@
     android:orientation="vertical"
     tools:context="com.google.android.gms.samples.vision.barcodereader.MainActivity">
 
-    <ScrollView
+    <ListView
         android:id="@+id/items_list"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="12">
-    </ScrollView>
+
+    </ListView>
 
     <Button
         android:layout_width="match_parent"
