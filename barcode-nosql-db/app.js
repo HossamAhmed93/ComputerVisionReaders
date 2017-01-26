@@ -8,7 +8,7 @@ app.use(bodyParser.json());
 Barcode = require('./models/barcode');
 
 // Connect to Mongoose
-var mongoUri = 'mongodb://localhost:27017/barcode';
+var mongoUri = 'mongodb://retail_user:retail_user@ds131099.mlab.com:31099/retail_db';
 var mongoDb = mongoose.connect(mongoUri).connection;
 mongoDb.on('error', function(err) {
   console.log(err.message);
