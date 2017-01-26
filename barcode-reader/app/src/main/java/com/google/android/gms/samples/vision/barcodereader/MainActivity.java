@@ -24,8 +24,15 @@ import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.TextView;
 
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.VolleyLog;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.google.android.gms.common.api.CommonStatusCodes;
 import com.google.android.gms.vision.barcode.Barcode;
+
+import org.json.JSONObject;
 
 import SQLLiteDB.DBHelper;
 import SQLLiteDB.ItemBarcode;
@@ -44,6 +51,10 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
     private static final int RC_BARCODE_CAPTURE = 9001;
     private static final String TAG = "BarcodeMain";
+
+    // Tag used to cancel the request
+    String tag_json_obj = "json_obj_req";
+    String url = "http://api.androidhive.info/volley/person_object.json";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,6 +122,26 @@ public class MainActivity extends Activity implements View.OnClickListener {
                     Log.d(TAG, "Barcode read: " + barcode.displayValue);
                     ItemBarcode item = new ItemBarcode(barcode.displayValue,barcode.displayValue);
                     db.addItem(item);
+
+                    JsonObjectRequest jsonObjReq = new JsonObjectRequest(Request.Method.GET,
+                            url, null,
+                            new Response.Listener<JSONObject>() {
+
+                                @Override
+                                public void onResponse(JSONObject response) {
+                                    Log.d(TAG, response.toString());
+                                    barcodeValue.setText(response.toString());
+                                }
+                            }, new Response.ErrorListener() {
+
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            VolleyLog.d(TAG, "Error: " + error.getMessage());
+                            // hide the progress dialog
+                        }
+                    });
+                    // Adding request to request queue
+                    AppController.getInstance().addToRequestQueue(jsonObjReq, tag_json_obj);
                 } else {
                     statusMessage.setText(R.string.barcode_failure);
                     Log.d(TAG, "No barcode captured, intent data is null");
