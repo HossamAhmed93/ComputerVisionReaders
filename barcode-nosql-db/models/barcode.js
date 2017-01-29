@@ -5,11 +5,16 @@ var joi = require('joi');
 var barcodeSchema = mongoose.Schema({
   code: {
     type: String,
+    unique: true,
     required: true
   },
   type: {
     type: String,
     enum: ['BARCODE', 'QRCODE'],
+    required: true
+  },
+  name: {
+    type: String,
     required: true
   },
   created_date: {
